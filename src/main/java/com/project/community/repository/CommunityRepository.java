@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CommunityRepository extends JpaRepository<Community,Short> {
+public interface CommunityRepository extends JpaRepository<Community,Integer> {
     List<Community> findByCommunityType(CommunityType communityType);
 }

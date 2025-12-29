@@ -41,12 +41,14 @@ public class CommunityController {
     public ResponseEntity<?> save(@PathVariable("comm_id") int comm_id ,@RequestBody UserDTO userDTO) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if(auth == null){
+            //Arun: this should be in SecurityFilter, not inside controller.
             return ResponseEntity.badRequest().body("Invalid JWT Token");
         }
 
         CommUserDetails userDetails = (CommUserDetails) auth.getPrincipal();
         Users user = userDetails.getUser();
         String role = user.getRoles().getRole();
+        //Arun: this should be in SecurityFilter, not inside controller.
         if(!role.toUpperCase().equals("ADMIN")){
             return ResponseEntity.badRequest().body("Not authorized to create user");
         }

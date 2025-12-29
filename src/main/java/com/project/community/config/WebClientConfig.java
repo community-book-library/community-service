@@ -16,6 +16,8 @@ public class WebClientConfig {
 
     @Bean
     public WebClient webClient() {
+        //Arun: URL should come from properties
+        //This outbound call should have timeouts
         return WebClient.builder()
                 .baseUrl("http://localhost:8081")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

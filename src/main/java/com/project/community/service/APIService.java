@@ -13,6 +13,7 @@ public class APIService {
     private WebClient webClient;
 
     public Users callPostApi(UserDTO request) {
+        //Arun: try non-blocking webclient if possible
         Users response =  webClient.post()
                 .uri("/auth/register")
                 .bodyValue(request)

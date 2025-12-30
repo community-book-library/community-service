@@ -3,7 +3,6 @@ package com.project.community.controller;
 import com.project.community.DTO.CommunityDTO;
 import com.project.community.common.library.dto.UserDTO;
 import com.project.community.common.library.entity.Users;
-import com.project.community.common.library.service.CommUserDetails;
 import com.project.community.model.CommManager;
 import com.project.community.model.Community;
 import com.project.community.model.CommunityType;
@@ -13,7 +12,6 @@ import com.project.community.service.CommunityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,17 +37,7 @@ public class CommunityController {
 
     @PostMapping(value = "/{comm_id}/manager", consumes = "application/json")
     public ResponseEntity<?> save(@PathVariable("comm_id") int comm_id ,@RequestBody UserDTO userDTO) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if(auth == null){
-            return ResponseEntity.badRequest().body("Invalid JWT Token");
-        }
 
-        CommUserDetails userDetails = (CommUserDetails) auth.getPrincipal();
-        Users user = userDetails.getUser();
-        String role = user.getRoles().getRole();
-        if(!role.toUpperCase().equals("ADMIN")){
-            return ResponseEntity.badRequest().body("Not authorized to create user");
-        }
         Users resp = apiService.callPostApi(userDTO);
         if(resp == null){
             return ResponseEntity.badRequest().body("Manager to community association failed");

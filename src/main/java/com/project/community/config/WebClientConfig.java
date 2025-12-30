@@ -1,5 +1,6 @@
 package com.project.community.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -14,10 +15,13 @@ public class WebClientConfig {
         return WebClient.builder();
     }
 
+    @Value("${webclient.baseurl}")
+    private String baseurl;
+
     @Bean
     public WebClient webClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8081")
+                .baseUrl(baseurl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
     }

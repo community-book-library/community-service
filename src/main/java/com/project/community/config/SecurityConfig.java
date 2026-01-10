@@ -34,7 +34,9 @@ public class SecurityConfig {
 
                 // Configure endpoint authorization
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/community/create", "/community/{comm_id}/manager").hasRole("ADMIN")
+                        .requestMatchers("/community/create"
+                            ,"/community/invite"
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 // Stateless session (required for JWT)

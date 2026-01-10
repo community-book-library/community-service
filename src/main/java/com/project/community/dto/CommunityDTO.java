@@ -1,4 +1,4 @@
-package com.project.community.DTO;
+package com.project.community.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

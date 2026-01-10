@@ -1,9 +1,7 @@
 package com.project.community.controller;
 
-import com.project.community.DTO.CommunityDTO;
-import com.project.community.common.library.dto.UserDTO;
-import com.project.community.common.library.entity.Users;
-import com.project.community.model.CommManager;
+import com.project.community.dto.CommunityDTO;
+import com.project.community.dto.ManagerDTO;
 import com.project.community.model.Community;
 import com.project.community.model.CommunityType;
 import com.project.community.repository.CommMgrRepository;
@@ -15,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/community")
@@ -31,26 +31,38 @@ public class CommunityController {
 
     @PostMapping(value = "/create", consumes = "application/json")
     public ResponseEntity<?> save(@RequestBody CommunityDTO communityDTO) {
+        // check whether community is already present before adding that to DB
+        Optional<Community> alreadyPresent = communityService.checkCommunity(communityDTO);
+        if(alreadyPresent.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Community is already registered");
+        }
         Community createdResponse = communityService.save(communityDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdResponse.getId());
     }
 
-    @PostMapping(value = "/{comm_id}/manager", consumes = "application/json")
-    public ResponseEntity<?> save(@PathVariable("comm_id") int comm_id ,@RequestBody UserDTO userDTO) {
+    public static  String generateToken()
+    {
+        UUID uuid = UUID.randomUUID();
+        // Returns the UUID as a string (e.g., "550e8400-e29b-41d4-a716-446655440000")
+        return uuid.toString();
+    }
 
-        Users resp = apiService.callPostApi(userDTO);
-        if(resp == null){
-            return ResponseEntity.badRequest().body("Manager to community association failed");
-        }
-        int manager_id = resp.getId();
-        CommManager commManager = new CommManager();
-        commManager.setCommunityId(comm_id);
-        commManager.setManagerId(manager_id);
-        commMgrRepository.save(commManager);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(resp.getId());
+    @PostMapping(value = "/invite", consumes = "application/json")
+    public ResponseEntity<?> save(@RequestBody ManagerDTO managerDTO) {
+//        Optional<Users> user = apiService.callFindByUsername(managerDTO.getEmail());
+//        if(user.isPresent()){
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Manager is already registered");
+//        }
+
+        String token = generateToken();
+        String url = communityService.generateManagerRegisterURL(managerDTO,token);
+        return ResponseEntity.status(HttpStatus.CREATED).body(url);
 
     }
+
+
+
 
 //    @PostMapping(value = "/{comm_id}/invite", consumes = "application/json")
 //    public ResponseEntity<?> sendInvite(@PathVariable("comm_id") int id, @RequestBody List<String> emails){

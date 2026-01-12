@@ -37,6 +37,7 @@ public class CommunityService {
     private RegisterTokenRepository registerTokenRepository;
 
     public Community save(CommunityDTO communityDTO){
+        //Arun: Extract below logic to a method, same code used in update
         Community community = new Community();
         community.setCommunityName(communityDTO.getCommunityName());
         switch (communityDTO.getCommunityType().toUpperCase()) {
@@ -58,6 +59,7 @@ public class CommunityService {
     }
 
     public Community update(int id, CommunityDTO communityDTO){
+        //Arun: Extract below logic to a method, same code used in save
         Community community = communityRepository.findById(id).get();
         community.setCommunityName(communityDTO.getCommunityName());
         switch (communityDTO.getCommunityType().toUpperCase()) {
@@ -100,7 +102,10 @@ public class CommunityService {
     }
 
     public String generateManagerRegisterURL(ManagerDTO managerDTO, String token) {
+        //Arun: this hashed is not used?
         String hashed = passwordEncoder.encode(token);
+
+        //Arun: create a findByRoleName query in repository instead of using findAll
         List<Roles> roles = commRoleRepository.findAll();
         Roles role = roles.stream().filter(rl -> rl.getRole().toUpperCase().equals(managerDTO.getAssignRole().toUpperCase())).findFirst().get();
         RegisterToken reg = new RegisterToken();

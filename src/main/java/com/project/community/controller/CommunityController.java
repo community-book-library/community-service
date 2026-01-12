@@ -7,6 +7,7 @@ import com.project.community.model.CommunityType;
 import com.project.community.repository.CommMgrRepository;
 import com.project.community.service.APIService;
 import com.project.community.service.CommunityService;
+import com.project.community.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,17 +24,18 @@ public class CommunityController {
     @Autowired
     private CommunityService communityService;
 
-    //Arun: all unused variables/code can be removed before every commit, intellij may have linting plugins that you can use
     @Autowired
     private APIService apiService;
 
     @Autowired
     private CommMgrRepository commMgrRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @PostMapping(value = "/create", consumes = "application/json")
-    public ResponseEntity<?> save(@RequestBody CommunityDTO communityDTO) {
+    public ResponseEntity<?> createCommunity(@RequestBody CommunityDTO communityDTO) {
         // check whether community is already present before adding that to DB
-        //Arun: its not anti-pattern, but as a better approach, we have to create validation classes instead of executing these inside controllers.
         Optional<Community> alreadyPresent = communityService.checkCommunity(communityDTO);
         if(alreadyPresent.isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Community is already registered");
@@ -42,9 +44,9 @@ public class CommunityController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdResponse.getId());
     }
 
-    //Arun: create a Util class and mvoe this to that class
-    public static String generateToken()
+    public static  String generateToken()
     {
+        // Generate Unique Token
         UUID uuid = UUID.randomUUID();
         // Returns the UUID as a string (e.g., "550e8400-e29b-41d4-a716-446655440000")
         return uuid.toString();
@@ -52,14 +54,14 @@ public class CommunityController {
 
 
     @PostMapping(value = "/invite", consumes = "application/json")
-        public ResponseEntity<?> save(@RequestBody ManagerDTO managerDTO) {
-//        Optional<Users> user = apiService.callFindByUsername(managerDTO.getEmail());
-//        if(user.isPresent()){
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Manager is already registered");
-//        }
+    public ResponseEntity<?> sendMailInvite(@RequestBody ManagerDTO managerDTO) {
+        if(communityService.checkCommunityManager(managerDTO)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Manager is already registered");
+        }
 
         String token = generateToken();
         String url = communityService.generateManagerRegisterURL(managerDTO,token);
+        emailService.sendInviteEmail(managerDTO.getEmail(),url);
         return ResponseEntity.status(HttpStatus.CREATED).body(url);
 
     }

@@ -6,7 +6,9 @@ import com.project.community.dto.ManagerDTO;
 import com.project.community.model.Community;
 import com.project.community.model.CommunityType;
 import com.project.community.model.RegisterToken;
+import com.project.community.model.UserCommunityRole;
 import com.project.community.repository.CommRoleRepository;
+import com.project.community.repository.CommUserRoleRepository;
 import com.project.community.repository.CommunityRepository;
 import com.project.community.repository.RegisterTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,9 @@ public class CommunityService {
 
     @Autowired
     private RegisterTokenRepository registerTokenRepository;
+
+    @Autowired
+    private CommUserRoleRepository commUserRoleRepository;
 
     public Community save(CommunityDTO communityDTO){
         //Arun: Extract below logic to a method, same code used in update
@@ -102,20 +107,31 @@ public class CommunityService {
     }
 
     public String generateManagerRegisterURL(ManagerDTO managerDTO, String token) {
-        //Arun: this hashed is not used?
-        String hashed = passwordEncoder.encode(token);
-
-        //Arun: create a findByRoleName query in repository instead of using findAll
-        List<Roles> roles = commRoleRepository.findAll();
-        Roles role = roles.stream().filter(rl -> rl.getRole().toUpperCase().equals(managerDTO.getAssignRole().toUpperCase())).findFirst().get();
+        String hashed = token;
+        Optional<Roles> role = commRoleRepository.findByRole(managerDTO.getAssignRole().toUpperCase());
         RegisterToken reg = new RegisterToken();
         reg.setCommunityId(managerDTO.getCommunityId());
         reg.setUsername(managerDTO.getEmail());
-        reg.setToken(token);
+        reg.setToken(hashed);
         reg.setStatus("ACTIVE");
-        reg.setRoleId(role.getRoleId());
+        reg.setRoleId(role.get().getRoleId());
+        reg.setCreatedBy(applicationName);
         registerTokenRepository.save(reg);
         String registerLink = "http://localhost:8080/register/" + token;
         return registerLink;
+    }
+
+    public boolean checkCommunityManager(ManagerDTO managerDTO) {
+        Optional<Roles> role = commRoleRepository.findByRole(managerDTO.getAssignRole().toUpperCase());
+        int role_id = 0;
+        if(role.isPresent()){
+            role_id = role.get().getRoleId();
+        }
+        Optional<UserCommunityRole> userCommunityRole = commUserRoleRepository.findByCommunityIdAndRoleId(managerDTO.getCommunityId(),
+                role_id);
+        if(userCommunityRole.isPresent() && userCommunityRole.get().getUserId() > 0){
+            return true;
+        }
+        return false;
     }
 }

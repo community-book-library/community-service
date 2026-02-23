@@ -1,5 +1,6 @@
 package com.project.community.controller;
 
+import com.project.community.common.library.service.EmailService;
 import com.project.community.dto.CommunityDTO;
 import com.project.community.dto.ManagerDTO;
 import com.project.community.model.Community;
@@ -7,7 +8,6 @@ import com.project.community.model.CommunityType;
 import com.project.community.repository.CommMgrRepository;
 import com.project.community.service.APIService;
 import com.project.community.service.CommunityService;
-import com.project.community.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,13 +66,6 @@ public class CommunityController {
 
     }
 
-
-
-
-//    @PostMapping(value = "/{comm_id}/invite", consumes = "application/json")
-//    public ResponseEntity<?> sendInvite(@PathVariable("comm_id") int id, @RequestBody List<String> emails){
-//
-//    }
 
     @GetMapping("/community/{communityId}")
     public ResponseEntity<?> findByCommunityId(@PathVariable("communityId") String communityId){

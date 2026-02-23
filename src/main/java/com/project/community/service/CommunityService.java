@@ -1,16 +1,16 @@
 package com.project.community.service;
 
+import com.project.community.common.library.entity.RegisterToken;
 import com.project.community.common.library.entity.Roles;
+import com.project.community.common.library.entity.UserCommunityRole;
+import com.project.community.common.library.repository.CommRoleRepository;
+import com.project.community.common.library.repository.CommUserRoleRepository;
+import com.project.community.common.library.repository.RegisterTokenRepository;
 import com.project.community.dto.CommunityDTO;
 import com.project.community.dto.ManagerDTO;
 import com.project.community.model.Community;
 import com.project.community.model.CommunityType;
-import com.project.community.model.RegisterToken;
-import com.project.community.model.UserCommunityRole;
-import com.project.community.repository.CommRoleRepository;
-import com.project.community.repository.CommUserRoleRepository;
 import com.project.community.repository.CommunityRepository;
-import com.project.community.repository.RegisterTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -107,7 +107,7 @@ public class CommunityService {
     }
 
     public String generateManagerRegisterURL(ManagerDTO managerDTO, String token) {
-        String hashed = token;
+        String hashed = passwordEncoder.encode(token);
         Optional<Roles> role = commRoleRepository.findByRole(managerDTO.getAssignRole().toUpperCase());
         RegisterToken reg = new RegisterToken();
         reg.setCommunityId(managerDTO.getCommunityId());
